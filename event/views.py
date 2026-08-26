@@ -110,3 +110,30 @@ class AttributeListView(ListAPIView):
             raise PermissionDenied('Only organizers can view attributes')
 
         return Attribute.objects.all()
+    
+class EventAttributeValueCreateView(CreateAPIView):
+    serializer_class = EventAttributeValueSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        event = serializer.validated_data['event']
+
+        if not user.organizer:
+            raise PermissionDenied("Only organizers can add attributes to events.")
+
+        if event.owner != user:
+            raise PermissionDenied("You can only modify your own events.")
+
+        serializer.save()
+
+class EventAttributeValueUpdateView(UpdateAPIView):
+    queryset = EventAttributeValue.objects.all()
+    serializer_class = EventAttributeValueSerializer
+    permission_classes = [IsOrganizerAndEventOwner]
+    lookup_field = "id"
+
+class EventAttributeValueDeleteView(DestroyAPIView):
+    queryset = EventAttributeValue.objects.all()
+    permission_classes = [IsOrganizerAndEventOwner]
+    lookup_field = "id"

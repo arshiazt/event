@@ -41,3 +41,11 @@ class ParticipantRegistrationCancelSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         raise NotImplementedError("Creation is not supported for this serializer.")
+    
+class EventRegistrationListForOrganizerSerializer(serializers.ModelSerializer):
+    
+    user_phone = serializers.CharField(source="user.phone", read_only=True)
+    class Meta:
+        model = Registration
+        fields = ("id","user_phone","status","created_at","canceled_at")
+        read_only_fields = fields

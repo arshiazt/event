@@ -100,3 +100,48 @@ class Event(models.Model):
     def __str__(self):
         return self.title
 
+class Attribute(models.Model):
+
+    class ValueType(models.TextChoices):
+        STRING = "string", "String"
+        INTEGER = "integer", "Integer"
+        BOOLEAN = "boolean", "Boolean"
+        FLOAT = "float", "Float"
+
+    name = models.CharField(max_length=255)
+    value_type = models.CharField(max_length=20,choices=ValueType.choices)
+
+    def __str__(self):
+        return f'{self.name} ---> {self.value_type}'
+    
+class EventAttributeValue(models.Model):
+
+    event = models.ForeignKey(Event,on_delete=models.CASCADE,related_name='attribute_values')
+    attribute = models.ForeignKey(Attribute,on_delete=models.CASCADE,related_name='event_values')
+
+    value_string = models.CharField(max_length=255, blank=True, null=True)
+    value_integer = models.IntegerField(blank=True, null=True)
+    value_boolean = models.BooleanField(blank=True, null=True)
+    value_float = models.FloatField(blank=True, null=True)
+
+    class Meta:
+        unique_together = ("event", "attribute")
+
+    def clean(self):
+        values = {
+            "string": self.value_string,
+            "integer": self.value_integer,
+            "boolean": self.value_boolean,
+            "float": self.value_float,
+        }
+
+        for key,val in values.items():
+            if key == self.attribute.value_type:
+                if val is None:
+                    raise ValidationError(f'Value for {self.attribute.value_type} must be provided')
+            else:
+                if val is not None:
+                    raise ValidationError(f'Only value_{self.attribute.value_type} can be set')
+            
+    def __str__(self):
+        return f'{self.event.title} - {self.attribute.name}'

@@ -140,16 +140,8 @@ REST_FRAMEWORK = {
 # drf spectacular settings
 SPECTACULAR_SETTINGS = {
     'TITLE': 'Event',
-    'DESCRIPTION': 'API project for daneshkar',
-    'VERSION': '1.0.0',
-}
-
-SPECTACULAR_SETTINGS = {
-    'TITLE': 'Event',
     'DESCRIPTION': 'Management of the event and its participants by event organizers',
-    'VERSION': '1.0.0',
-    'SERVE_INCLUDE_SCHEMA': False,
-    # OTHER SETTINGS
+    'VERSION': '1.0.0'
 }
 
 # User model setting

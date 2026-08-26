@@ -68,7 +68,7 @@ class OrganizerCommentListView(ListAPIView):
         return EventComment.objects.filter(event=event)
 
 class OrganizerRatingListView(ListAPIView):
-    
+
     serializer_class = RatingListSerializer
     permission_classes = [IsAuthenticated]
 
@@ -79,3 +79,26 @@ class OrganizerRatingListView(ListAPIView):
             raise PermissionDenied("You do not own this event.")
 
         return EventRating.objects.filter(event=event)
+    
+class EventResultsView(APIView):
+    def get(self, request, event_id):
+        event = get_object_or_404(Event, id=event_id)
+
+        if event.status != event.Status.FINISHED:
+            return Response(
+                {"detail": "Results are available only after event is finished."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        ratings = EventRating.objects.filter(event=event)
+        comments = EventComment.objects.filter(event=event)
+
+        data = {
+            "average_rating": ratings.aggregate(avg=Avg("value"))["avg"] or 0,
+            "ratings_count": ratings.count(),
+            "comments_count": comments.count(),
+            "comments": comments,
+        }
+
+        serializer = EventResultsSerializer(data)
+        return Response(serializer.data, status=status.HTTP_200_OK)

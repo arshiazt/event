@@ -92,3 +92,10 @@ class RatingListSerializer(serializers.ModelSerializer):
             "value",
             "updated_at",
         )
+
+class EventResultsSerializer(serializers.Serializer):
+    
+    average_rating = serializers.FloatField()
+    ratings_count = serializers.IntegerField()
+    comments_count = serializers.IntegerField()
+    comments = CommentListSerializer(many=True)

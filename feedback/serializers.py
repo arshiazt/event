@@ -41,3 +41,54 @@ class CommentListSerializer(serializers.ModelSerializer):
             "text",
             "created_at",
         )
+
+class RatingCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EventRating
+        fields = ("value",)
+
+    def validate_value(self, value):
+        if not (0 <= value <= 5):
+            raise serializers.ValidationError(
+                "Rating must be between 0 and 5."
+            )
+        return value
+
+    def validate(self, attrs):
+        event = self.context["event"]
+        user = self.context["request"].user
+
+        if event.status != event.Status.FINISHED:
+            raise serializers.ValidationError(
+                "You can rate only finished events."
+            )
+
+        if not event.registrations.filter(user=user).exists():
+            raise serializers.ValidationError(
+                "You must be registered in this event to rate."
+            )
+
+        return attrs
+
+    def create(self, validated_data):
+        event = self.context["event"]
+        user = self.context["request"].user
+
+        rating, _ = EventRating.objects.update_or_create(
+            event=event,
+            user=user,
+            defaults={"value": validated_data["value"]}
+        )
+
+        return rating
+    
+class RatingListSerializer(serializers.ModelSerializer):
+    user = serializers.StringRelatedField()
+
+    class Meta:
+        model = EventRating
+        fields = (
+            "user",
+            "value",
+            "updated_at",
+        )

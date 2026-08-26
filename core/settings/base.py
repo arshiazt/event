@@ -43,6 +43,8 @@ INSTALLED_APPS = [
 
     # my apps
     'accounts.apps.AccountsConfig',
+    'event.apps.EventConfig',
+    'registration.apps.RegistrationConfig',
 ]
 
 MIDDLEWARE = [

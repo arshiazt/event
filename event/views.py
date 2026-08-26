@@ -85,3 +85,28 @@ class EventDeleteView(DestroyAPIView):
             raise PermissionDenied('Only organizers can delete events')
 
         return Event.objects.filter(owner=user)
+    
+class AttributeCreateView(CreateAPIView):
+    serializer_class = AttributeSerializer
+    queryset = Attribute.objects.all()
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        user = self.request.user
+
+        if not user.organizer:
+            raise PermissionDenied('Only organizers can create attributes')
+
+        serializer.save()
+
+class AttributeListView(ListAPIView):
+    serializer_class = AttributeSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+
+        if not user.organizer:
+            raise PermissionDenied('Only organizers can view attributes')
+
+        return Attribute.objects.all()

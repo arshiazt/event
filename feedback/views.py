@@ -32,3 +32,24 @@ class CommentCreateView(APIView):
             {"detail": "Comment submitted successfully."},
             status=status.HTTP_201_CREATED
         )
+    
+class RatingCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = RatingCreateSerializer
+    def post(self, request, event_id):
+        event = get_object_or_404(Event, id=event_id)
+
+        serializer = RatingCreateSerializer(
+            data=request.data,
+            context={
+                "request": request,
+                "event": event
+            }
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(
+            {"detail": "Rating saved successfully."},
+            status=status.HTTP_201_CREATED
+        )

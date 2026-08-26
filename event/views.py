@@ -137,3 +137,43 @@ class EventAttributeValueDeleteView(DestroyAPIView):
     queryset = EventAttributeValue.objects.all()
     permission_classes = [IsOrganizerAndEventOwner]
     lookup_field = "id"
+
+class PublicEventListView(ListAPIView):
+
+    serializer_class = EventListSerializer
+    permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        user = self.request.user
+
+        if user.is_authenticated and not user.participant:
+            raise PermissionDenied("Only participants can view events.")
+
+        return Event.objects.filter(
+            status__in=[
+                Event.Status.PUBLISHED,
+                Event.Status.CLOSED,
+                Event.Status.FINISHED,
+            ]
+        ).order_by("-published_date")
+
+
+class PublicEventDetailView(RetrieveAPIView):
+   
+    serializer_class = EventDetailSerializer
+    permission_classes = [AllowAny]
+    lookup_field = "id"
+
+    def get_queryset(self):
+        user = self.request.user
+
+        if user.is_authenticated and not user.participant:
+            raise PermissionDenied("Only participants can view event details.")
+
+        return Event.objects.filter(
+            status__in=[
+                Event.Status.PUBLISHED,
+                Event.Status.CLOSED,
+                Event.Status.FINISHED,
+            ]
+        )

@@ -91,3 +91,26 @@ class AttributeSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('This attribute already exists. Please use the existing one')
 
         return value
+    
+class EventAttributeValueSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = EventAttributeValue
+        fields = (
+            'id',
+            'event',
+            'attribute',
+            'value_string',
+            'value_integer',
+            'value_boolean',
+            'value_float',
+        )
+        read_only_fields = ('id',)
+
+        def validate(self,attrs):
+
+            instance = EventAttributeValue(**attrs)
+            try:
+                instance.full_clean()
+            except ValidationError as e:
+                raise serializers.ValidationError(e.message_dict)

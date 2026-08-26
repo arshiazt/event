@@ -25,3 +25,20 @@ class RegisterView(APIView):
         },
         status =  status.HTTP_201_CREATED
         )
+
+class LoginView(APIView):
+    permission_classes = [IsNotAuthenticated]
+
+    def post(self,request):
+
+        serializer = LoginSerializer(data=request.data,context={'request':request})
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        login(request,user)
+
+        return Response({
+            "detail": "Login successful",
+            "role": "organizer" if user.organizer else "participant"
+        },
+        status=status.HTTP_200_OK
+        )

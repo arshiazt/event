@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'accounts.apps.AccountsConfig',
     'event.apps.EventConfig',
     'registration.apps.RegistrationConfig',
+    'feedback.apps.FeedbackConfig',
 ]
 
 MIDDLEWARE = [

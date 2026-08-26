@@ -28,4 +28,5 @@ urlpatterns = [
     # my apps urls
     path('accounts/',include('accounts.urls')),
     path('event/',include('event.urls')),
+    path('registration/',include('registration.urls')),
 ]

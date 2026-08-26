@@ -149,3 +149,50 @@ class EventDetailSerializer(serializers.ModelSerializer):
             'updated_date',
         )
         read_only_fields = fields
+
+class EventUpdateSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Event
+        exclude = ('owner','status','created_date','updated_date')
+
+    def validate(self, attrs):
+        
+        event = self.instance
+
+        if event.status != Event.Status.DRAFT:
+            raise serializers.ValidationError('Only draft events can be updated.')
+        
+        for field,value in attrs.items():
+            setattr(event,field,value)
+
+            try:
+                event.full_clean()
+            except ValidationError as e:
+                raise serializers.ValidationError(e.message_dict)
+
+        return attrs
+    
+    def update(self, instance, validated_data):
+        
+        old_can_be_prerequisite = instance.can_be_prerequisite
+        new_can_be_prerequisite = validated_data.get('can_be_prerequisite',old_can_be_prerequisite)
+
+        if old_can_be_prerequisite and not new_can_be_prerequisite:
+            Event.objects.filter(prerequisite_event=instance).update(prerequisite_event=None)
+
+        return super().update(instance,validated_data)
+    
+class EventDeleteSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Event
+        fields = ()
+
+    def validate(self, attrs):
+        event = self.instance
+
+        if event.status != Event.Status.DRAFT:
+            raise serializers.ValidationError('Only draft events can be deleted.')
+
+        return attrs

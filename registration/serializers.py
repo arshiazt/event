@@ -32,3 +32,12 @@ class ParticipantRegistrationListSerializer(serializers.ModelSerializer):
         model = Registration
         fields = ("id","event","status","created_at","canceled_at")
         read_only_fields = fields
+
+class ParticipantRegistrationCancelSerializer(serializers.Serializer):
+
+    def update(self, instance, validated_data):
+        instance.cancel()
+        return instance
+
+    def create(self, validated_data):
+        raise NotImplementedError("Creation is not supported for this serializer.")

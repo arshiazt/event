@@ -23,3 +23,12 @@ class ParticipantRegistrationCreateSerializer(serializers.ModelSerializer):
         registration.save()
 
         return registration
+
+class ParticipantRegistrationListSerializer(serializers.ModelSerializer):
+
+    event = serializers.StringRelatedField()
+
+    class Meta:
+        model = Registration
+        fields = ("id","event","status","created_at","canceled_at")
+        read_only_fields = fields

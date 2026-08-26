@@ -56,3 +56,32 @@ class EventDetailView(RetrieveAPIView):
         event.update_status()
         
         return event
+    
+@method_decorator(csrf_exempt,name='dispatch')
+class EventUpdateView(UpdateAPIView):
+    serializer_class = EventUpdateSerializer
+    permission_classes  = [IsAuthenticated]
+    lookup_field = 'id'
+    http_method_names = ['patch']
+
+    def get_queryset(self):
+        user = self.request.user
+
+        if not user.organizer:
+            raise PermissionDenied('Only organizers can update events')
+
+        return Event.objects.filter(owner=user)
+
+@method_decorator(csrf_exempt,name='dispatch')
+class EventDeleteView(DestroyAPIView):
+    serializer_class = EventDeleteSerializer
+    permission_classes = [IsAuthenticated]
+    lookup_field = "id"
+
+    def get_queryset(self):
+        user = self.request.user
+
+        if not user.organizer:
+            raise PermissionDenied('Only organizers can delete events')
+
+        return Event.objects.filter(owner=user)

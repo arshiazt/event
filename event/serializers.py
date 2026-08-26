@@ -61,3 +61,33 @@ class EventCreateSerializer(serializers.ModelSerializer):
         event = Event.objects.create(owner=request.user,status=Event.Status.DRAFT,**validated_data)
 
         return event  
+    
+class EventListSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Event
+        fields = (
+            "id",
+            "title",
+            "status",
+            "capacity",
+            "price",
+            "published_date",
+            "start_date",
+            "end_date",
+        )
+        read_only_fields = fields
+
+class AttributeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Attribute
+        fields = ('id','name','value_type')
+        read_only_fields = ('id',)
+
+    def validate_name(self,value):
+        
+        if Attribute.objects.filter(name__iexact=value).exists():
+            raise serializers.ValidationError('This attribute already exists. Please use the existing one')
+
+        return value

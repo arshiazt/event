@@ -114,3 +114,38 @@ class EventAttributeValueSerializer(serializers.ModelSerializer):
                 instance.full_clean()
             except ValidationError as e:
                 raise serializers.ValidationError(e.message_dict)
+    
+class EventAttributeValueDetailSerializer(serializers.ModelSerializer):
+    attribute = AttributeSerializer(read_only=True)
+
+    class Meta:
+        model = EventAttributeValue
+        fields = ('attribute','value_string','value_integer','value_boolean','value_float')
+
+class EventDetailSerializer(serializers.ModelSerializer):
+    owner = serializers.StringRelatedField()
+    attribute_values = EventAttributeValueDetailSerializer(many=True,read_only=True)
+
+    class Meta:
+        model = Event
+        fields = (
+            'id',
+            'title',
+            'description',
+            'capacity',
+            'price',
+            'status',
+            'published_date',
+            'start_date',
+            'end_date',
+            'coach',
+            'speaker',
+            'judge',
+            'can_be_prerequisite',
+            'require_prerequisite_registration',
+            'owner',
+            'attribute_values',
+            'created_date',
+            'updated_date',
+        )
+        read_only_fields = fields

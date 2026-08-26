@@ -48,3 +48,27 @@ class RegisterSerializer(serializers.ModelSerializer):
         user = User.objects.create_user(password=password,**validated_data)
 
         return user
+    
+class LoginSerializer(serializers.ModelSerializer):
+
+    phone = serializers.CharField(max_length=11,write_only=True)
+    password = serializers.CharField(write_only=True)
+    
+    class Meta:
+        model = User
+        fields = ('phone','password')
+
+    def validate(self, attrs):
+        
+        phone = attrs.get('phone')
+        password = attrs.get('password')
+        user = authenticate(request=self.context.get('request'),phone=phone,password=password)
+
+        if not user:
+            raise serializers.ValidationError('The phone number or password is incorrect.')
+
+        if not user.is_active:
+            raise   serializers.ValidationError('This account is inactive.')
+        
+        attrs['user'] = user
+        return attrs

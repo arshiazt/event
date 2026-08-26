@@ -53,3 +53,29 @@ class RatingCreateView(APIView):
             {"detail": "Rating saved successfully."},
             status=status.HTTP_201_CREATED
         )
+    
+class OrganizerCommentListView(ListAPIView):
+
+    serializer_class = CommentListSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        event = get_object_or_404(Event, id=self.kwargs["event_id"])
+
+        if event.owner != self.request.user:
+            raise PermissionDenied("You do not own this event.")
+
+        return EventComment.objects.filter(event=event)
+
+class OrganizerRatingListView(ListAPIView):
+    
+    serializer_class = RatingListSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        event = get_object_or_404(Event, id=self.kwargs["event_id"])
+
+        if event.owner != self.request.user:
+            raise PermissionDenied("You do not own this event.")
+
+        return EventRating.objects.filter(event=event)
